@@ -6,13 +6,16 @@ import { ConstructorPageUIProps } from './type';
 import { Preloader } from '@ui';
 import { BurgerIngredients, BurgerConstructor } from '@components';
 
+// Компонент страницы конструктора бургера
 export const ConstructorPageUI: FC<ConstructorPageUIProps> = ({
   isIngredientsLoading
 }) => (
   <>
+    {/* Если ингредиенты загружаются, показываем прелоадер */}
     {isIngredientsLoading ? (
       <Preloader />
     ) : (
+      // В противном случае отображаем страницу конструктора
       <main className={styles.containerMain}>
         <h1
           className={`${styles.title} text text_type_main-large mt-10 mb-5 pl-5`}

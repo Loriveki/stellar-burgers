@@ -3,6 +3,7 @@ import { forwardRef } from 'react';
 import { TIngredientsCategoryUIProps } from './type';
 import { BurgerIngredient } from '@components';
 
+// отображает список ингредиентов одной категории (булки, соусы, начинки)
 export const IngredientsCategoryUI = forwardRef<
   HTMLUListElement,
   TIngredientsCategoryUIProps

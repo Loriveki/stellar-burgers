@@ -1,36 +1,83 @@
-import { FC, useMemo } from 'react';
-import { TConstructorIngredient } from '@utils-types';
+import { FC, useMemo, useEffect } from 'react';
 import { BurgerConstructorUI } from '@ui';
+import { useSelector, useDispatch } from '../../services/store';
+import { useNavigate } from 'react-router-dom';
+import {
+  selectBun,
+  selectIngredients,
+  clearConstructor
+} from '../../services/reducers/constructorSlice';
 
-export const BurgerConstructor: FC = () => {
-  /** TODO: взять переменные constructorItems, orderRequest и orderModalData из стора */
+import {
+  selectCurrentOrder,
+  selectIsOrderModalOpen,
+  selectLoadingOrders,
+  createOrderThunk
+} from '../../services/reducers/orderSlice';
+import { closeOrderModal } from '../../services/reducers/orderSlice';
+import { getCookie } from '../../utils/cookie';
+
+export interface BurgerConstructorProps {
+  isOver?: boolean;
+}
+
+export const BurgerConstructor: FC<BurgerConstructorProps> = ({
+  isOver = false
+}) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const bun = useSelector(selectBun);
+  const ingredients = useSelector(selectIngredients);
+  const orderRequest = useSelector(selectLoadingOrders);
+  const orderModalData = useSelector(selectCurrentOrder);
+  const isOrderModalOpen = useSelector(selectIsOrderModalOpen);
+
   const constructorItems = {
-    bun: {
-      price: 0
-    },
-    ingredients: []
+    bun,
+    ingredients
   };
 
-  const orderRequest = false;
+  // Очистка конструктора после успешного заказа
+  useEffect(() => {
+    if (orderModalData && isOrderModalOpen) {
+      dispatch(clearConstructor());
+    }
+  }, [orderModalData, isOrderModalOpen, dispatch]);
 
-  const orderModalData = null;
-
+  // Функция для обработки нажатия на кнопку заказа
   const onOrderClick = () => {
+    const accessToken = getCookie('accessToken');
+    console.log('Access Token:', accessToken);
+    if (!accessToken) {
+      console.log('No access token, navigating to /login');
+      navigate('/login');
+      return;
+    }
     if (!constructorItems.bun || orderRequest) return;
+    const ingredientIds = [
+      constructorItems.bun._id,
+      ...constructorItems.ingredients.map((item) => item._id),
+      constructorItems.bun._id
+    ];
+    dispatch(createOrderThunk(ingredientIds));
   };
-  const closeOrderModal = () => {};
 
+  // Функция для закрытия модального окна заказа
+  const handleCloseOrderModal = () => {
+    dispatch(closeOrderModal());
+  };
+
+  // Вычисление общей стоимости бургера
   const price = useMemo(
     () =>
-      (constructorItems.bun ? constructorItems.bun.price * 2 : 0) +
-      constructorItems.ingredients.reduce(
-        (s: number, v: TConstructorIngredient) => s + v.price,
+      (bun ? bun.price * 2 : 0) +
+      (constructorItems.ingredients || []).reduce(
+        (sum, item) => sum + item.price,
         0
       ),
-    [constructorItems]
+    [bun, ingredients]
   );
-
-  return null;
 
   return (
     <BurgerConstructorUI
@@ -39,7 +86,8 @@ export const BurgerConstructor: FC = () => {
       constructorItems={constructorItems}
       orderModalData={orderModalData}
       onOrderClick={onOrderClick}
-      closeOrderModal={closeOrderModal}
+      closeOrderModal={handleCloseOrderModal}
+      isOver={isOver}
     />
   );
 };

@@ -1,20 +1,34 @@
-import { useState, useRef, useEffect, FC } from 'react';
+import { useState, useRef, useEffect, FC, useMemo } from 'react';
 import { useInView } from 'react-intersection-observer';
 
 import { TTabMode } from '@utils-types';
 import { BurgerIngredientsUI } from '../ui/burger-ingredients';
 
+import { useSelector } from '../../services/store';
+import { selectIngredients } from '../../services/reducers/ingredientsSlice';
+
 export const BurgerIngredients: FC = () => {
-  /** TODO: взять переменные из стора */
-  const buns = [];
-  const mains = [];
-  const sauces = [];
+  const allIngredients = useSelector(selectIngredients);
+
+  const buns = useMemo(
+    () => allIngredients.filter((item) => item.type === 'bun'),
+    [allIngredients]
+  );
+  const mains = useMemo(
+    () => allIngredients.filter((item) => item.type === 'main'),
+    [allIngredients]
+  );
+  const sauces = useMemo(
+    () => allIngredients.filter((item) => item.type === 'sauce'),
+    [allIngredients]
+  );
 
   const [currentTab, setCurrentTab] = useState<TTabMode>('bun');
   const titleBunRef = useRef<HTMLHeadingElement>(null);
   const titleMainRef = useRef<HTMLHeadingElement>(null);
   const titleSaucesRef = useRef<HTMLHeadingElement>(null);
 
+  // Используем useInView для определения, какая секция сейчас в зоне видимости
   const [bunsRef, inViewBuns] = useInView({
     threshold: 0
   });
@@ -27,6 +41,8 @@ export const BurgerIngredients: FC = () => {
     threshold: 0
   });
 
+  // Следим за изменением видимости секций и обновляем активную вкладку
+
   useEffect(() => {
     if (inViewBuns) {
       setCurrentTab('bun');
@@ -37,6 +53,7 @@ export const BurgerIngredients: FC = () => {
     }
   }, [inViewBuns, inViewFilling, inViewSauces]);
 
+  // Обработчик клика на вкладку (прокрутка)
   const onTabClick = (tab: string) => {
     setCurrentTab(tab as TTabMode);
     if (tab === 'bun')
@@ -47,21 +64,19 @@ export const BurgerIngredients: FC = () => {
       titleSaucesRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  return null;
-
   return (
     <BurgerIngredientsUI
-      currentTab={currentTab}
-      buns={buns}
-      mains={mains}
-      sauces={sauces}
-      titleBunRef={titleBunRef}
-      titleMainRef={titleMainRef}
-      titleSaucesRef={titleSaucesRef}
-      bunsRef={bunsRef}
-      mainsRef={mainsRef}
-      saucesRef={saucesRef}
-      onTabClick={onTabClick}
+      currentTab={currentTab} // Текущая активная вкладка
+      buns={buns} // Список булочек
+      mains={mains} // Список основных ингредиентов
+      sauces={sauces} // Список соусов
+      titleBunRef={titleBunRef} // Реф для заголовка булочек
+      titleMainRef={titleMainRef} // Реф для заголовка основных ингредиентов
+      titleSaucesRef={titleSaucesRef} // Реф для заголовка соусов
+      bunsRef={bunsRef} // Реф для отслеживания видимости булочек
+      mainsRef={mainsRef} // Реф для отслеживания видимости основных ингредиентов
+      saucesRef={saucesRef} // Реф для отслеживания видимости соусов
+      onTabClick={onTabClick} // Функция смены вкладки
     />
   );
 };

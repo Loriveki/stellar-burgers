@@ -1,6 +1,6 @@
-import { FC, useState } from 'react';
+import { FC } from 'react';
 import {
-  Input,
+  Input as BaseInput,
   Button,
   PasswordInput
 } from '@zlden/react-developer-burger-ui-components';
@@ -8,6 +8,18 @@ import styles from '../common.module.css';
 import { Link } from 'react-router-dom';
 import { LoginUIProps } from './type';
 
+interface CustomInputProps
+  extends Omit<
+    React.ComponentProps<typeof BaseInput>,
+    'onPointerEnterCapture' | 'onPointerLeaveCapture'
+  > {
+  onPointerEnterCapture?: (event: React.PointerEvent<HTMLInputElement>) => void;
+  onPointerLeaveCapture?: (event: React.PointerEvent<HTMLInputElement>) => void;
+}
+
+const Input = BaseInput as React.FC<CustomInputProps>;
+
+// Компонент страницы авторизации
 export const LoginUI: FC<LoginUIProps> = ({
   email,
   setEmail,

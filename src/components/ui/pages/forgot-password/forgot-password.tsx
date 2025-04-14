@@ -1,10 +1,25 @@
 import { FC } from 'react';
 
-import { Input, Button } from '@zlden/react-developer-burger-ui-components';
+import {
+  Input as BaseInput,
+  Button
+} from '@zlden/react-developer-burger-ui-components';
 import styles from '../common.module.css';
 import { Link } from 'react-router-dom';
 import { PageUIProps } from '../common-type';
 
+interface CustomInputProps
+  extends Omit<
+    React.ComponentProps<typeof BaseInput>,
+    'onPointerEnterCapture' | 'onPointerLeaveCapture'
+  > {
+  onPointerEnterCapture?: (event: React.PointerEvent<HTMLInputElement>) => void;
+  onPointerLeaveCapture?: (event: React.PointerEvent<HTMLInputElement>) => void;
+}
+
+const Input = BaseInput as React.FC<CustomInputProps>;
+
+// Компонент страницы восстановления пароля
 export const ForgotPasswordUI: FC<PageUIProps> = ({
   errorText,
   email,
@@ -32,10 +47,12 @@ export const ForgotPasswordUI: FC<PageUIProps> = ({
           />
         </div>
         <div className={`pb-6 ${styles.button}`}>
+          {/* Кнопка отправки формы */}
           <Button type='primary' size='medium' htmlType='submit'>
             Восстановить
           </Button>
         </div>
+        {/* Вывод ошибки, если есть */}
         {errorText && (
           <p className={`${styles.error} text text_type_main-default pb-6`}>
             {errorText}
@@ -43,6 +60,7 @@ export const ForgotPasswordUI: FC<PageUIProps> = ({
         )}
       </form>
       <div className={`${styles.question} text text_type_main-default pb-6`}>
+        {/* Ссылка на страницу входа */}
         Вспомнили пароль?
         <Link to={'/login'} className={`pl-2 ${styles.link}`}>
           Войти

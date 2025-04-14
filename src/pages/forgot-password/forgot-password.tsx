@@ -5,11 +5,12 @@ import { forgotPasswordApi } from '@api';
 import { ForgotPasswordUI } from '@ui-pages';
 
 export const ForgotPassword: FC = () => {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(''); // Состояние для email
   const [error, setError] = useState<Error | null>(null);
 
   const navigate = useNavigate();
 
+  // Обработчик отправки формы
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
 

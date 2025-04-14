@@ -3,11 +3,13 @@ import styles from './profile-menu.module.css';
 import { NavLink } from 'react-router-dom';
 import { ProfileMenuUIProps } from './type';
 
+// Компонент меню профиля
 export const ProfileMenuUI: FC<ProfileMenuUIProps> = ({
-  pathname,
-  handleLogout
+  pathname, // Текущий путь (используется для определения активного раздела)
+  handleLogout // Функция выхода из аккаунта
 }) => (
   <>
+    {/* Ссылка на профиль пользователя */}
     <NavLink
       to={'/profile'}
       className={({ isActive }) =>
@@ -19,6 +21,7 @@ export const ProfileMenuUI: FC<ProfileMenuUIProps> = ({
     >
       Профиль
     </NavLink>
+    {/* Ссылка на историю заказов */}
     <NavLink
       to={'/profile/orders'}
       className={({ isActive }) =>

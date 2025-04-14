@@ -2,17 +2,21 @@ import { FC } from 'react';
 
 import { TOrder } from '@utils-types';
 import { FeedInfoUI } from '../ui/feed-info';
+import { useSelector } from '../../services/store';
+import { selectFeed } from '../../services/reducers/feedSlice';
 
+// Функция получает список заказов и статус,
+// фильтрует заказы по этому статусу,
+// извлекает их номера и возвращает не более 20 номеров
 const getOrders = (orders: TOrder[], status: string): number[] =>
   orders
-    .filter((item) => item.status === status)
-    .map((item) => item.number)
-    .slice(0, 20);
+    .filter((item) => item.status === status) // Фильтрация заказов по статусу
+    .map((item) => item.number) // Получение номера заказа
+    .slice(0, 20); // Ограничение до 20 элементов
 
 export const FeedInfo: FC = () => {
-  /** TODO: взять переменные из стора */
-  const orders: TOrder[] = [];
-  const feed = {};
+  const feed = useSelector(selectFeed);
+  const orders = feed?.orders || [];
 
   const readyOrders = getOrders(orders, 'done');
 
@@ -20,9 +24,9 @@ export const FeedInfo: FC = () => {
 
   return (
     <FeedInfoUI
-      readyOrders={readyOrders}
-      pendingOrders={pendingOrders}
-      feed={feed}
+      readyOrders={readyOrders} // Передаем готовые заказы
+      pendingOrders={pendingOrders} // Передаем заказы в ожидании
+      feed={feed} // Передаем информацию о фиде
     />
   );
 };

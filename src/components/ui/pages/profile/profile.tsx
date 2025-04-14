@@ -1,19 +1,35 @@
 import { FC } from 'react';
 
-import { Button, Input } from '@zlden/react-developer-burger-ui-components';
+import {
+  Button,
+  Input as BaseInput
+} from '@zlden/react-developer-burger-ui-components';
 import styles from './profile.module.css';
 import commonStyles from '../common.module.css';
 
 import { ProfileUIProps } from './type';
 import { ProfileMenu } from '@components';
 
+interface CustomInputProps
+  extends Omit<
+    React.ComponentProps<typeof BaseInput>,
+    'onPointerEnterCapture' | 'onPointerLeaveCapture'
+  > {
+  onPointerEnterCapture?: (event: React.PointerEvent<HTMLInputElement>) => void;
+  onPointerLeaveCapture?: (event: React.PointerEvent<HTMLInputElement>) => void;
+}
+
+const Input = BaseInput as React.FC<CustomInputProps>;
+
+// Компонент страницы профиля пользователя
 export const ProfileUI: FC<ProfileUIProps> = ({
   formValue,
   isFormChanged,
   updateUserError,
   handleSubmit,
   handleCancel,
-  handleInputChange
+  handleInputChange,
+  passwordInputRef
 }) => (
   <main className={`${commonStyles.container}`}>
     <div className={`mt-30 mr-15 ${styles.menu}`}>
@@ -22,6 +38,7 @@ export const ProfileUI: FC<ProfileUIProps> = ({
     <form
       className={`mt-30 ${styles.form} ${commonStyles.form}`}
       onSubmit={handleSubmit}
+      name='profile-form'
     >
       <>
         <div className='pb-6'>
@@ -61,6 +78,8 @@ export const ProfileUI: FC<ProfileUIProps> = ({
             errorText={''}
             size={'default'}
             icon={'EditIcon'}
+            autoComplete='current-password'
+            ref={passwordInputRef}
           />
         </div>
         {isFormChanged && (

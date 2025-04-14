@@ -10,6 +10,7 @@ export const ResetPassword: FC = () => {
   const [token, setToken] = useState('');
   const [error, setError] = useState<Error | null>(null);
 
+  // Обработчик отправки формы сброса пароля
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
     setError(null);
@@ -21,6 +22,7 @@ export const ResetPassword: FC = () => {
       .catch((err) => setError(err));
   };
 
+  // Проверяем, есть ли в localStorage флаг сброса пароля
   useEffect(() => {
     if (!localStorage.getItem('resetPassword')) {
       navigate('/forgot-password', { replace: true });
@@ -29,12 +31,12 @@ export const ResetPassword: FC = () => {
 
   return (
     <ResetPasswordUI
-      errorText={error?.message}
-      password={password}
-      token={token}
-      setPassword={setPassword}
-      setToken={setToken}
-      handleSubmit={handleSubmit}
+      errorText={error?.message} // Передаем сообщение об ошибке
+      password={password} // Передаем текущее значение пароля
+      token={token} // Передаем текущий токен
+      setPassword={setPassword} // Функция для обновления пароля
+      setToken={setToken} // Функция для обновления токена
+      handleSubmit={handleSubmit} // Функция отправки формы
     />
   );
 };
