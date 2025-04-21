@@ -21,17 +21,16 @@ const Input = BaseInput as React.FC<CustomInputProps>;
 
 //Этот компонент реализует страницу восстановления пароля
 export const ResetPasswordUI: FC<ResetPasswordUIProps> = ({
-  errorText, // Сообщение об ошибке
-  password, // Значение пароля
-  setPassword, // Функция обновления пароля
-  handleSubmit, // Функция обработки отправки формы
-  token, // Токен (код подтверждения из письма)
-  setToken // Функция обновления токена
+  errorText,
+  password,
+  setPassword,
+  handleSubmit,
+  token,
+  setToken
 }) => (
   <main className={styles.container}>
     <div className={`pt-6 ${styles.wrapCenter}`}>
       <h3 className='pb-6 text text_type_main-medium'>Восстановление пароля</h3>
-      {/* Форма восстановления пароля */}
       <form
         className={`pb-15 ${styles.form}`}
         name='login'

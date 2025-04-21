@@ -11,20 +11,24 @@ const statusText: { [key: string]: string } = {
 
 // Основной компонент для отображения статуса заказа
 export const OrderStatus: FC<OrderStatusProps> = ({ status }) => {
-  let textStyle = ''; // Стиль для текста (цвет)
+  let textColor = ''; // Стиль для текста (цвет)
+  const pendingColor = '#E52B1A';
+  const doneColor = '#00CCCC';
+  const defaultColor = '#F2F2F3';
+
   // В зависимости от статуса, задаем стиль для текста
   switch (status) {
-    case 'pending': // Если заказ в процессе
-      textStyle = '#E52B1A';
+    case 'pending':
+      textColor = pendingColor;
       break;
-    case 'done': // Если заказ выполнен
-      textStyle = '#00CCCC';
+    case 'done':
+      textColor = doneColor;
       break;
     default:
-      textStyle = '#F2F2F3';
+      textColor = defaultColor;
   }
 
   return (
-    <OrderStatusUI textStyle={textStyle} text={statusText[status] || status} />
+    <OrderStatusUI textStyle={textColor} text={statusText[status] || status} />
   );
 };

@@ -15,15 +15,15 @@ export const Profile: FC = () => {
   const error = useSelector(selectAuthError);
   const isLoading = useSelector(selectAuthLoading);
   const dispatch = useDispatch();
+  const PASSWORD_PLACEHOLDER = '********';
 
   const [formValue, setFormValue] = useState({
     name: '',
     email: '',
-    password: '********'
+    password: PASSWORD_PLACEHOLDER
   });
   const [initialPassword, setInitialPassword] = useState('');
   const [isPasswordChanged, setIsPasswordChanged] = useState(false);
-  const passwordInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!user) {
@@ -37,26 +37,10 @@ export const Profile: FC = () => {
         ...prevState,
         name: user.name || '',
         email: user.email || '',
-        password: prevState.password || '********'
+        password: prevState.password || PASSWORD_PLACEHOLDER
       }));
     }
   }, [user]);
-
-  // Захватываем автозаполнённый пароль после первого рендера
-  useEffect(() => {
-    const passwordField = passwordInputRef.current;
-    if (
-      passwordField &&
-      passwordField.value &&
-      passwordField.value !== '********'
-    ) {
-      setInitialPassword(passwordField.value);
-      setFormValue((prevState) => ({
-        ...prevState,
-        password: passwordField.value
-      }));
-    }
-  }, [passwordInputRef]);
 
   const isFormChanged =
     (user && formValue.name !== user.name) ||
@@ -66,7 +50,7 @@ export const Profile: FC = () => {
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
     const passwordToSend =
-      isPasswordChanged && formValue.password !== '********'
+      isPasswordChanged && formValue.password !== PASSWORD_PLACEHOLDER
         ? formValue.password
         : '';
     dispatch(
@@ -83,7 +67,7 @@ export const Profile: FC = () => {
     setFormValue({
       name: user?.name || '',
       email: user?.email || '',
-      password: initialPassword || '********'
+      password: initialPassword || PASSWORD_PLACEHOLDER
     });
     setIsPasswordChanged(false);
   };
@@ -95,7 +79,12 @@ export const Profile: FC = () => {
       [name]: value
     }));
     if (name === 'password') {
-      setIsPasswordChanged(value !== '********' && value !== initialPassword);
+      if (!initialPassword) {
+        setInitialPassword(value);
+      }
+      setIsPasswordChanged(
+        value !== PASSWORD_PLACEHOLDER && value !== initialPassword
+      );
     }
   };
 
@@ -111,7 +100,6 @@ export const Profile: FC = () => {
       handleCancel={handleCancel}
       handleSubmit={handleSubmit}
       handleInputChange={handleInputChange}
-      passwordInputRef={passwordInputRef}
     />
   );
 };

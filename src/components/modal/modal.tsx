@@ -2,7 +2,6 @@ import { FC, memo, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { useSelector } from '../../services/store';
 import { selectCurrentOrder } from '../../services/reducers/orderSlice';
-
 import { TModalProps } from './type';
 import { ModalUI } from '@ui';
 

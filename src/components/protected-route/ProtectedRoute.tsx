@@ -19,12 +19,12 @@ export const ProtectedRoute = ({
     return <Preloader />;
   }
 
-  // Защита от авторизованных пользователей (например, /login, /register)
+  // Защита от авторизованных пользователей
   if (onlyUnAuth && isAuthenticated) {
     return <Navigate to='/' replace />;
   }
 
-  // Защита от неавторизованных пользователей (например, /profile)
+  // Защита от неавторизованных пользователей
   if (!onlyUnAuth && !isAuthenticated) {
     return <Navigate to='/login' state={{ from: location }} replace />;
   }

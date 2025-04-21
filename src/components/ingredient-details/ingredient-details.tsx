@@ -1,11 +1,9 @@
 import { FC, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-
 import { Preloader } from '../ui/preloader';
 import { IngredientDetailsUI } from '../ui/ingredient-details';
 import styles from '../ui/ingredient-details/ingredient-details.module.css';
-
 import {
   selectSelectedIngredient,
   selectIngredientsLoaded,
@@ -36,7 +34,7 @@ export const IngredientDetails: FC<IngredientDetailsProps> = ({
 
   useEffect(
     () => () => {
-      void dispatch(clearSelectedIngredient());
+      dispatch(clearSelectedIngredient());
     },
     [dispatch]
   );

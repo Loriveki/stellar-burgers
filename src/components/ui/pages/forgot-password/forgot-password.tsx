@@ -1,5 +1,4 @@
 import { FC } from 'react';
-
 import {
   Input as BaseInput,
   Button
@@ -7,6 +6,7 @@ import {
 import styles from '../common.module.css';
 import { Link } from 'react-router-dom';
 import { PageUIProps } from '../common-type';
+import clsx from 'clsx';
 
 interface CustomInputProps
   extends Omit<
@@ -27,7 +27,7 @@ export const ForgotPasswordUI: FC<PageUIProps> = ({
   handleSubmit
 }) => (
   <main className={styles.container}>
-    <div className={`pt-6 ${styles.wrapCenter}`}>
+    <div className={clsx('pt-6', styles.wrapCenter)}>
       <h3 className='pb-6 text text_type_main-medium'>Восстановление пароля</h3>
       <form
         className={`pb-15 ${styles.form}`}

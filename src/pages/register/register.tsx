@@ -1,28 +1,28 @@
 import { FC, SyntheticEvent, useState } from 'react';
-import { useDispatch } from 'react-redux'; // Используем кастомный useDispatch
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import {
   registerUserThunk,
   loginUserThunk
-} from '../../services/reducers/authSlice'; // Твоя асинхронная логика для регистрации
-import { Preloader } from '@ui'; // Компонент загрузки
+} from '../../services/reducers/authSlice';
+import { Preloader } from '@ui';
 import {
   selectIsAuthenticated,
   selectAuthLoading,
   selectAuthError
 } from '../../services/reducers/authSlice';
-import { RegisterUI } from '@ui-pages'; // Компонент UI для регистрации
-import { AppDispatch, useSelector } from '../../services/store'; // Тип для dispatch
+import { RegisterUI } from '@ui-pages';
+import { useSelector } from '../../services/store';
+import { AppDispatch } from '../../services/types';
 
 export const Register: FC = () => {
-  const [userName, setUserName] = useState(''); // Состояние имени пользователя
-  const [email, setEmail] = useState(''); // Состояние email
-  const [password, setPassword] = useState(''); // Состояние пароля
-
-  const navigate = useNavigate(); // Для навигации
-  const dispatch = useDispatch<AppDispatch>(); // Используем кастомный useDispatch
-  const isAuthenticated = useSelector(selectIsAuthenticated); // Статус авторизации
-  const isLoading = useSelector(selectAuthLoading); // Статус загрузки
+  const [userName, setUserName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const isLoading = useSelector(selectAuthLoading);
   const error = useSelector(selectAuthError);
 
   // Если пользователь уже авторизован, перенаправить его на главную
@@ -33,17 +33,11 @@ export const Register: FC = () => {
   // Обработчик отправки формы
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
-    try {
-      // Пытаемся зарегистрировать пользователя
-      const response = await dispatch(
-        registerUserThunk({ email, name: userName, password })
-      ).unwrap();
-      await dispatch(loginUserThunk({ email, password })).unwrap();
-      navigate('/');
-    } catch (error) {
-      // Обработка ошибок регистрации
-      console.error('Ошибка регистрации:', error);
-    }
+    await dispatch(
+      registerUserThunk({ email, name: userName, password })
+    ).unwrap();
+    await dispatch(loginUserThunk({ email, password })).unwrap();
+    navigate('/');
   };
 
   if (isLoading) {

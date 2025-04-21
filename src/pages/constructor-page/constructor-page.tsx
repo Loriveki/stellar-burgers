@@ -11,7 +11,8 @@ import {
   useSensors,
   DragEndEvent,
   DragOverEvent,
-  DragOverlay
+  DragOverlay,
+  DragStartEvent
 } from '@dnd-kit/core';
 import { useDispatch, useSelector } from '../../services/store';
 import {
@@ -22,6 +23,7 @@ import {
 import { selectLoadingIngredients } from '../../services/reducers/ingredientsSlice';
 import { TConstructorIngredient, TIngredient } from '../../utils/types';
 import { BurgerIngredientUI } from '@ui';
+import clsx from 'clsx';
 
 export const ConstructorPage: FC = () => {
   const dispatch = useDispatch();
@@ -31,6 +33,7 @@ export const ConstructorPage: FC = () => {
   const [draggedIngredient, setDraggedIngredient] =
     useState<TIngredient | null>(null);
   const location = useLocation();
+  const CONSTRUCTOR_AREA_ID = 'constructor-area';
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -38,9 +41,11 @@ export const ConstructorPage: FC = () => {
     })
   );
 
-  const handleDragStart = (event: any) => {
-    const ingredient = event.active.data.current?.ingredient as TIngredient;
-    setDraggedIngredient(ingredient);
+  const handleDragStart = (event: DragStartEvent) => {
+    const ingredient = event.active.data.current?.ingredient;
+    if (ingredient && 'type' in ingredient) {
+      setDraggedIngredient(ingredient as TIngredient);
+    }
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -55,7 +60,7 @@ export const ConstructorPage: FC = () => {
     const draggedId = active.id as string;
     const overId = over.id as string;
 
-    if (overId === 'constructor-area') {
+    if (overId === CONSTRUCTOR_AREA_ID) {
       const ingredientData = active.data.current?.ingredient;
       if (ingredientData) {
         const newIngredient: TConstructorIngredient = {
@@ -69,10 +74,10 @@ export const ConstructorPage: FC = () => {
     }
 
     const draggedIngredient = constructorItems.ingredients.find(
-      (item) => item.uniqueId === draggedId
+      (item: TConstructorIngredient) => item.uniqueId === draggedId
     );
     const targetIngredient = constructorItems.ingredients.find(
-      (item) => item.uniqueId === overId
+      (item: TConstructorIngredient) => item.uniqueId === overId
     );
 
     if (draggedIngredient && targetIngredient) {
@@ -88,7 +93,7 @@ export const ConstructorPage: FC = () => {
 
   const handleDragOver = (event: DragOverEvent) => {
     const { over } = event;
-    setIsOverConstructor(over?.id === 'constructor-area');
+    setIsOverConstructor(over?.id === CONSTRUCTOR_AREA_ID);
   };
 
   return (
@@ -102,7 +107,7 @@ export const ConstructorPage: FC = () => {
           >
             Соберите бургер
           </h1>
-          <div className={`${styles.main} pl-5 pr-5`}>
+          <div className={clsx(styles.main, 'pl-5', 'pr-5')}>
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}
@@ -111,19 +116,10 @@ export const ConstructorPage: FC = () => {
               onDragOver={handleDragOver}
             >
               <BurgerIngredients />
-              <BurgerConstructor isOver={isOverConstructor} />
+              <BurgerConstructor isDraggingOver={isOverConstructor} />
               <DragOverlay>
                 {draggedIngredient ? (
-                  <div
-                    style={{
-                      opacity: 0.5,
-                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-                      transform: 'scale(1.05)',
-                      transition: 'all 0.2s ease',
-                      zIndex: 100,
-                      cursor: 'grabbing'
-                    }}
-                  >
+                  <div className={styles.dragOverlay}>
                     <BurgerIngredientUI
                       ingredient={draggedIngredient}
                       count={0}

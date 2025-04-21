@@ -5,38 +5,18 @@ import { useDispatch } from '../../services/store';
 import {
   moveIngredient,
   removeIngredient
-} from '../../services/reducers/constructorSlice'; // Импортируем экшены
+} from '../../services/reducers/constructorSlice';
 
 export const BurgerConstructorElement: FC<BurgerConstructorElementProps> = memo(
   ({ ingredient, index, totalItems }) => {
     const dispatch = useDispatch();
 
     const handleMoveDown = () => {
-      console.log(
-        'HandleMoveDown: from',
-        index,
-        'to',
-        index + 1,
-        'totalItems:',
-        totalItems
-      );
-      if (index < totalItems - 1) {
-        dispatch(moveIngredient({ fromIndex: index, toIndex: index + 1 }));
-      }
+      dispatch(moveIngredient({ fromIndex: index, toIndex: index + 1 }));
     };
 
     const handleMoveUp = () => {
-      console.log(
-        'HandleMoveUp: from',
-        index,
-        'to',
-        index - 1,
-        'totalItems:',
-        totalItems
-      );
-      if (index > 0) {
-        dispatch(moveIngredient({ fromIndex: index, toIndex: index - 1 }));
-      }
+      dispatch(moveIngredient({ fromIndex: index, toIndex: index - 1 }));
     };
 
     const handleClose = () => {

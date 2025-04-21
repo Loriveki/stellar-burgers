@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import {
   Button,
   ConstructorElement,
@@ -7,13 +7,8 @@ import {
 import styles from './burger-constructor.module.css';
 import { BurgerConstructorUIProps } from './type';
 import { TConstructorIngredient } from '@utils-types';
-import { BurgerConstructorElement, Modal } from '@components';
+import { Modal } from '@components';
 import { Preloader, OrderDetailsUI } from '@ui';
-import { useDispatch } from '../../../services/store';
-import {
-  moveIngredient,
-  addIngredient
-} from '../../../services/reducers/constructorSlice';
 import { DraggableIngredient } from '../../ui/burger-constructor/DraggableIngredient';
 import { useDroppable } from '@dnd-kit/core';
 import {
@@ -28,20 +23,11 @@ export const BurgerConstructorUI: FC<BurgerConstructorUIProps> = ({
   orderModalData,
   onOrderClick,
   closeOrderModal,
-  isOver = false
+  isDraggingOver = false
 }) => {
   const { setNodeRef: setDroppableRef } = useDroppable({
     id: 'constructor-area'
   });
-
-  const droppableStyle = {
-    transition: 'background-color 0.2s ease',
-    backgroundColor: isOver ? 'rgba(107, 51, 121, 0.22)' : 'transparent',
-    border: isOver ? '2px dashed rgb(105, 41, 134)' : 'none',
-    maxHeight: '656px',
-    overflowY: 'scroll' as const,
-    padding: '8px 0'
-  };
 
   const sortableItems = constructorItems.ingredients.map(
     (item: TConstructorIngredient) => item.uniqueId
@@ -67,7 +53,10 @@ export const BurgerConstructorUI: FC<BurgerConstructorUIProps> = ({
         </div>
       )}
 
-      <div ref={setDroppableRef} style={droppableStyle}>
+      <div
+        ref={setDroppableRef}
+        className={`${styles.droppableArea} ${isDraggingOver ? styles.droppableAreaOver : ''}`}
+      >
         <SortableContext
           items={sortableItems}
           strategy={verticalListSortingStrategy}

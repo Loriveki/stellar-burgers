@@ -16,13 +16,14 @@ import {
 } from '../../services/reducers/orderSlice';
 import { closeOrderModal } from '../../services/reducers/orderSlice';
 import { getCookie } from '../../utils/cookie';
+import { TIngredient } from '@utils-types';
 
 export interface BurgerConstructorProps {
-  isOver?: boolean;
+  isDraggingOver?: boolean;
 }
 
 export const BurgerConstructor: FC<BurgerConstructorProps> = ({
-  isOver = false
+  isDraggingOver = false
 }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -48,16 +49,14 @@ export const BurgerConstructor: FC<BurgerConstructorProps> = ({
   // Функция для обработки нажатия на кнопку заказа
   const onOrderClick = () => {
     const accessToken = getCookie('accessToken');
-    console.log('Access Token:', accessToken);
     if (!accessToken) {
-      console.log('No access token, navigating to /login');
       navigate('/login');
       return;
     }
     if (!constructorItems.bun || orderRequest) return;
     const ingredientIds = [
       constructorItems.bun._id,
-      ...constructorItems.ingredients.map((item) => item._id),
+      ...constructorItems.ingredients.map((item: TIngredient) => item._id),
       constructorItems.bun._id
     ];
     dispatch(createOrderThunk(ingredientIds));
@@ -87,7 +86,7 @@ export const BurgerConstructor: FC<BurgerConstructorProps> = ({
       orderModalData={orderModalData}
       onOrderClick={onOrderClick}
       closeOrderModal={handleCloseOrderModal}
-      isOver={isOver}
+      isDraggingOver={isDraggingOver}
     />
   );
 };

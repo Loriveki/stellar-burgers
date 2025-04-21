@@ -1,3 +1,4 @@
+import { FC, useEffect } from 'react';
 import {
   ConstructorPage,
   Feed,
@@ -22,20 +23,19 @@ import { useAuthCheck } from '../../hooks/useAuthCheck';
 import { useDispatch } from '../../services/store';
 import { fetchIngredientsThunk } from '../../services/reducers/ingredientsSlice';
 import { closeOrderModal } from '../../services/reducers/orderSlice';
-import { useEffect } from 'react';
 
-const App = () => {
+const App: FC = () => {
   useAuthCheck();
 
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(fetchIngredientsThunk());
-  }, [dispatch]);
-
   const navigate = useNavigate();
   const location = useLocation();
   const background = location.state?.background;
+
+  // Загрузка ингредиентов
+  useEffect(() => {
+    dispatch(fetchIngredientsThunk());
+  }, [dispatch]);
 
   const handleClose = () => {
     dispatch(closeOrderModal());

@@ -101,7 +101,7 @@ export const getIngredientsApi = () =>
     });
 
 /**
- * Запрос на получение заказов (фид ленты).
+ * Запрос на получение заказов.
  */
 export const getFeedsApi = () =>
   fetch(`${URL}/orders/all`)

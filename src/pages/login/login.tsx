@@ -9,20 +9,18 @@ import {
   selectAuthError
 } from '../../services/reducers/authSlice';
 import { LoginUI } from '@ui-pages';
-import { AppDispatch, useSelector } from '../../services/store';
+import { useSelector } from '../../services/store';
+import { AppDispatch } from '../../services/types';
 
 export const Login: FC = () => {
-  const [email, setEmail] = useState(''); // Состояние email
-  const [password, setPassword] = useState(''); // Состояние пароля
-
-  const navigate = useNavigate(); // Для навигации
-  const location = useLocation(); // Для получения состояния с предыдущей страницы
-  const dispatch = useDispatch<AppDispatch>(); // Используем кастомный useDispatch
-  const isAuthenticated = useSelector(selectIsAuthenticated); // Статус авторизации
-  const isLoading = useSelector(selectAuthLoading); // Статус загрузки
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch<AppDispatch>();
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const isLoading = useSelector(selectAuthLoading);
   const error = useSelector(selectAuthError);
-
-  // Если пользователь уже авторизован, перенаправить его на главную
   const user = useSelector(selectUser);
 
   useEffect(() => {
@@ -35,16 +33,7 @@ export const Login: FC = () => {
   // Обработчик отправки формы
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
-    try {
-      // Пытаемся выполнить логин пользователя
-      await dispatch(loginUserThunk({ email, password })).unwrap();
-      // После успешной авторизации редиректим на страницу, с которой был перенаправлен
-      const from = location.state?.from || '/'; // Если пришел с защищенной страницы, возвращаем туда
-      navigate(from, { replace: true });
-    } catch (error) {
-      // Обработка ошибок авторизации
-      console.error('Ошибка авторизации:', error);
-    }
+    await dispatch(loginUserThunk({ email, password })).unwrap();
   };
 
   if (isLoading) {

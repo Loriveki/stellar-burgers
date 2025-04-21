@@ -1,5 +1,5 @@
 import { FC, memo } from 'react';
-import { useLocation, Location } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { BurgerIngredientUI } from '@ui';
@@ -10,6 +10,7 @@ import {
   addIngredient,
   setBun
 } from '../../services/reducers/constructorSlice';
+import styles from '../ui/burger-ingredient/burger-ingredient.module.css';
 
 export const BurgerIngredient: FC<TBurgerIngredientProps> = memo(
   ({ ingredient, count }) => {
@@ -22,9 +23,7 @@ export const BurgerIngredient: FC<TBurgerIngredientProps> = memo(
     });
 
     const style = {
-      transform: CSS.Translate.toString(transform),
-      transition: 'transform 0.2s ease',
-      cursor: 'grab'
+      transform: CSS.Translate.toString(transform)
     };
 
     const handleAdd = () => {
@@ -40,7 +39,12 @@ export const BurgerIngredient: FC<TBurgerIngredientProps> = memo(
     };
 
     return (
-      <div ref={setNodeRef} style={style} {...listeners} {...attributes}>
+      <div
+        ref={setNodeRef}
+        className={styles.draggable}
+        {...listeners}
+        {...attributes}
+      >
         <BurgerIngredientUI
           ingredient={ingredient}
           count={count}

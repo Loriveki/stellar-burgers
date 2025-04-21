@@ -84,7 +84,20 @@
 }
 
 .sortable-ingredient:active {
-  opacity: 0.5; /* Полупрозрачность */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Тень */
-  z-index: 100; /* Поднимаем элемент */
+  opacity: 0.5;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+}
+
+.droppableArea {
+  transition: background-color 0.2s ease;
+  background-color: transparent;
+  overflow-y: scroll;
+  max-height: 656px;
+  padding: 8px 0;
+}
+
+.droppableAreaOver {
+  background-color: rgba(107, 51, 121, 0.22);
+  border: 2px dashed rgb(105, 41, 134);
 }

@@ -5,24 +5,25 @@ import {
   logoutApi,
   getUserApi,
   updateUserApi,
-  TAuthResponse
+  refreshToken // Импортируем готовую функцию refreshToken
 } from '../../utils/burger-api';
 import { TUser } from '../../utils/types';
 import { setCookie, getCookie, deleteCookie } from '../../utils/cookie';
-import { RootState } from '../store';
+import { RootState } from '../types';
 
 type IAuthState = {
-  user: TUser | null; // Данные о пользователе
-  accessToken: string | null; // Токен доступа
-  isAuthenticated: boolean; // Статус авторизации
-  loading: boolean; // Флаг загрузки
-  error: string | null; // Текст ошибки
+  user: TUser | null;
+  accessToken: string | null;
+  refreshToken: string | null;
+  isAuthenticated: boolean;
+  loading: boolean;
+  error: string | null;
 };
 
-// Начальное состояние для авторизации
 const initialState: IAuthState = {
   user: null,
   accessToken: getCookie('accessToken') || null,
+  refreshToken: localStorage.getItem('refreshToken') || null,
   isAuthenticated: false,
   loading: false,
   error: null
@@ -64,10 +65,35 @@ export const loginUserThunk = createAsyncThunk<
   }
 });
 
+// Запрос на обновление токена с использованием функции refreshToken
+export const refreshTokenThunk = createAsyncThunk<
+  { accessToken: string; refreshToken: string },
+  void,
+  { rejectValue: string }
+>('auth/refreshToken', async (_, { rejectWithValue }) => {
+  try {
+    const refreshData = await refreshToken(); // Используем готовую функцию из burger-api
+    return {
+      accessToken: refreshData.accessToken,
+      refreshToken: refreshData.refreshToken
+    };
+  } catch (err) {
+    return rejectWithValue('Ошибка обновления токена');
+  }
+});
+
 // Запрос на выход из системы
-export const logoutUserThunk = createAsyncThunk('auth/logoutUser', async () => {
-  await logoutApi();
-  return null;
+export const logoutUserThunk = createAsyncThunk<
+  null,
+  void,
+  { rejectValue: string }
+>('auth/logoutUser', async (_, { rejectWithValue }) => {
+  try {
+    await logoutApi();
+    return null;
+  } catch (err) {
+    return rejectWithValue('Ошибка выхода из системы');
+  }
 });
 
 // Запрос на получение данных пользователя
@@ -127,22 +153,32 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = action.payload;
         state.isAuthenticated = true;
-        // Сохранение токенов
-        const accessToken = getCookie('accessToken');
-        const refreshToken = localStorage.getItem('refreshToken');
-
-        // Записываем accessToken в state
-
-        if (accessToken) {
-          state.accessToken = accessToken;
-        }
-        if (refreshToken) {
-          localStorage.setItem('refreshToken', refreshToken);
-        }
       })
       .addCase(loginUserThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+
+      // Обновление токена
+      .addCase(refreshTokenThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(refreshTokenThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        state.accessToken = action.payload.accessToken;
+        state.refreshToken = action.payload.refreshToken;
+        state.isAuthenticated = true;
+      })
+      .addCase(refreshTokenThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        state.isAuthenticated = false;
+        state.user = null;
+        state.accessToken = null;
+        state.refreshToken = null;
+        deleteCookie('accessToken');
+        localStorage.removeItem('refreshToken');
       })
 
       // Выход из системы
@@ -150,12 +186,10 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = null;
         state.isAuthenticated = false;
-
-        // Удаляем токены
+        state.accessToken = null;
+        state.refreshToken = null;
         deleteCookie('accessToken');
         localStorage.removeItem('refreshToken');
-
-        state.accessToken = null;
       })
 
       // Получение данных пользователя
@@ -196,5 +230,6 @@ export const selectIsAuthenticated = (state: RootState) =>
 export const selectAuthLoading = (state: RootState) => state.auth.loading;
 export const selectAuthError = (state: RootState) => state.auth.error;
 export const selectAccessToken = (state: RootState) => state.auth.accessToken;
+export const selectRefreshToken = (state: RootState) => state.auth.refreshToken;
 
 export default authSlice.reducer;

@@ -1,13 +1,14 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getIngredientsApi } from '../../utils/burger-api'; // Импорт API-запроса
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { getIngredientsApi } from '../../utils/burger-api';
 import { TIngredient } from '../../utils/types';
-import { RootState } from '../store';
+import { RootState } from '../types';
 
 type IngredientsState = {
-  ingredients: TIngredient[]; // массив ингредиентов
-  loading: boolean; // загрузка данных
-  error: string | null; // текст ошибки
+  ingredients: TIngredient[];
+  loading: boolean;
+  error: string | null;
   loaded: boolean;
+  selectedIngredient: TIngredient | null;
 };
 
 // начальное состояние стора для ингредиентов
@@ -15,14 +16,15 @@ const initialState: IngredientsState = {
   ingredients: [],
   loading: false,
   error: null,
-  loaded: false
+  loaded: false,
+  selectedIngredient: null
 };
 
 // Асинхронный thunk для запроса ингредиентов
 export const fetchIngredientsThunk = createAsyncThunk<
-  TIngredient[], // Тип данных, которые получим (массив ингредиентов)
-  void, // Аргумент
-  { rejectValue: string } // Ошибка, если запрос провалился
+  TIngredient[],
+  void,
+  { rejectValue: string }
 >('ingredients/fetchIngredients', async (_, { rejectWithValue }) => {
   try {
     return await getIngredientsApi();
@@ -35,12 +37,9 @@ export const fetchIngredientsThunk = createAsyncThunk<
 
 const ingredientsSlice = createSlice({
   name: 'ingredients',
-  initialState: {
-    ...initialState,
-    selectedIngredient: null as TIngredient | null
-  },
+  initialState,
   reducers: {
-    setSelectedIngredient(state, action) {
+    setSelectedIngredient(state, action: PayloadAction<TIngredient | null>) {
       state.selectedIngredient = action.payload;
     },
     clearSelectedIngredient(state) {

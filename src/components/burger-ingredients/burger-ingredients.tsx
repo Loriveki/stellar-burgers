@@ -1,9 +1,7 @@
 import { useState, useRef, useEffect, FC, useMemo } from 'react';
 import { useInView } from 'react-intersection-observer';
-
 import { TTabMode } from '@utils-types';
 import { BurgerIngredientsUI } from '../ui/burger-ingredients';
-
 import { useSelector } from '../../services/store';
 import { selectIngredients } from '../../services/reducers/ingredientsSlice';
 

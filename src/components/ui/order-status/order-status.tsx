@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { OrderStatusUIProps } from './type';
 
 // отображает статус заказа с соответствующим стилем

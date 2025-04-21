@@ -2,29 +2,38 @@ import { FC, useMemo, useEffect } from 'react';
 import { Preloader } from '../ui/preloader';
 import { OrderInfoUI } from '../ui/order-info';
 import { TIngredient } from '@utils-types';
-
 import { useSelector, useDispatch } from '../../services/store';
 import { useParams } from 'react-router-dom';
-import { selectIngredients } from '../../services/reducers/ingredientsSlice'; // Путь к слайсу с ингредиентами
+import {
+  selectIngredients,
+  selectLoadingIngredients
+} from '../../services/reducers/ingredientsSlice';
 import {
   fetchOrderByNumberThunk,
   selectOrderById
 } from '../../services/reducers/orderSlice';
-import { RootState } from '../../services/store';
+import { RootState } from '../../services/types';
+import styles from '../../components/ui/order-info/order-info.module.css';
+import { TIngredientsWithCount } from './type';
 
 type OrderInfoProps = {
   isModal?: boolean;
 };
-import styles from '../../components/ui/order-info/order-info.module.css';
 
 export const OrderInfo: FC<OrderInfoProps> = ({ isModal = false }) => {
   const dispatch = useDispatch();
   const { number } = useParams<{ number: string }>();
 
   const ingredients = useSelector(selectIngredients);
-  const orderData = useSelector((state: RootState) =>
+  const orderFromStore = useSelector((state: RootState) =>
     selectOrderById(state, number ?? '')
   );
+
+  const isLoading = useSelector(selectLoadingIngredients);
+
+  if (isLoading) {
+    return <Preloader />;
+  }
 
   useEffect(() => {
     if (number) {
@@ -33,24 +42,16 @@ export const OrderInfo: FC<OrderInfoProps> = ({ isModal = false }) => {
     }
   }, [number, dispatch]);
 
-  /* Готовим данные для отображения */
   const orderInfo = useMemo(() => {
     // Если нет данных о заказе или ингредиентах, возвращаем null
-    if (!orderData || !ingredients.length) return null;
+    if (!orderFromStore || !ingredients.length) return null;
 
-    const date = new Date(orderData.createdAt); // Преобразуем дату создания заказа
-
-    // Тип для ингредиентов с количеством
-    type TIngredientsWithCount = {
-      [key: string]: TIngredient & { count: number };
-    };
+    const date = new Date(orderFromStore.createdAt);
 
     // Формируем объект с ингредиентами и их количеством
-    const ingredientsInfo = orderData.ingredients.reduce(
+    const ingredientsInfo = orderFromStore.ingredients.reduce(
       (acc: TIngredientsWithCount, item) => {
-        // Если ингредиент еще не был добавлен
         if (!acc[item]) {
-          // Находим ингредиент по ID
           const ingredient = ingredients.find((ing) => ing._id === item);
           if (ingredient) {
             acc[item] = {
@@ -59,31 +60,30 @@ export const OrderInfo: FC<OrderInfoProps> = ({ isModal = false }) => {
             };
           }
         } else {
-          // Если ингредиент уже добавлен, увеличиваем его количество
           acc[item].count++;
         }
 
         return acc;
       },
-      {} // Начальное значение
+      {}
     );
 
     // Считаем общую стоимость заказа
     const total = Object.values(ingredientsInfo).reduce(
-      (acc, item) => acc + item.price * item.count,
+      (acc: number, item: TIngredient & { count: number }) =>
+        acc + item.price * item.count,
       0
     );
 
     // Возвращаем все обработанные данные
     return {
-      ...orderData, // Исходные данные заказа
-      ingredientsInfo, // Информация о ингредиентах с их количеством
-      date, // Отформатированная дата
-      total // Общая стоимость
+      ...orderFromStore,
+      ingredientsInfo,
+      date,
+      total
     };
-  }, [orderData, ingredients]);
+  }, [orderFromStore, ingredients]);
 
-  // условие только здесь, после useMemo
   if (!number || !orderInfo) {
     return <Preloader />;
   }

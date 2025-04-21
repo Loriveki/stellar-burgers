@@ -1,47 +1,45 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect } from 'react';
 import { Preloader } from '@ui';
 import { FeedUI } from '@ui-pages';
 import {
   selectFeed,
   selectLoadingFeed,
-  selectWsConnected,
-  connectFeedWs
+  connectFeedWs,
+  disconnectFeedWs
 } from '../../services/reducers/feedSlice';
-import { useDispatch, useSelector } from '../../services/store';
+import { useSelector, useDispatch } from '../../services/store';
+import { selectNewOrderIds } from '../../services/reducers/orderSlice';
 
 export const Feed: FC = () => {
   const dispatch = useDispatch();
   const feed = useSelector(selectFeed);
   const isLoadingFeed = useSelector(selectLoadingFeed);
-  const wsConnected = useSelector(selectWsConnected);
-  const [ws, setWs] = useState<WebSocket | null>(null);
+  const newOrderIds = useSelector(selectNewOrderIds);
 
+  const FEED_WS_URL = 'wss://norma.nomoreparties.space/orders/all';
+
+  // Подключение WebSocket для общей ленты заказов
   useEffect(() => {
-    const wsUrl = 'wss://norma.nomoreparties.space/orders/all';
-    if (!ws) {
-      const websocket = new WebSocket(wsUrl);
-      setWs(websocket);
-      dispatch(connectFeedWs(wsUrl));
-    }
-
+    dispatch(connectFeedWs(FEED_WS_URL));
     return () => {
-      if (ws) {
-        ws.close();
-        setWs(null);
-      }
+      dispatch(disconnectFeedWs());
     };
-  }, [dispatch, ws]);
+  }, [dispatch]);
 
   const handleGetFeeds = () => {
-    if (wsConnected && ws) {
-      ws.close();
-      setWs(null);
-    }
+    dispatch(disconnectFeedWs());
+    dispatch(connectFeedWs(FEED_WS_URL));
   };
 
   if (isLoadingFeed || !feed || feed.orders.length === 0) {
     return <Preloader />;
   }
 
-  return <FeedUI orders={feed.orders} handleGetFeeds={handleGetFeeds} />;
+  return (
+    <FeedUI
+      orders={feed.orders}
+      handleGetFeeds={handleGetFeeds}
+      newOrderIds={newOrderIds}
+    />
+  );
 };

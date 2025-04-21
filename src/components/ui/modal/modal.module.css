@@ -42,3 +42,12 @@
   flex-direction: column;
   align-items: center;
 }
+
+.orderNumber {
+  font-family: 'Iceland';
+  font-weight: normal;
+  font-size: 28px;
+  line-height: 0.86;
+  text-align: center;
+  margin-bottom: 20px !important;
+}

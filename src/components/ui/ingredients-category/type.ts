@@ -5,6 +5,5 @@ export interface TIngredientsCategoryUIProps {
   titleRef: React.RefObject<HTMLHeadingElement>;
   ingredients: TIngredient[];
   ingredientsCounters: { [key: string]: number };
-  children: React.ReactNode; // Обязательно добавляем children
   ref: React.Ref<HTMLUListElement>;
 }

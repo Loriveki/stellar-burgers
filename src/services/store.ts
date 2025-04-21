@@ -5,7 +5,10 @@ import {
   useDispatch as dispatchHook,
   useSelector as selectorHook
 } from 'react-redux';
+import { tokenMiddleware } from './tokenMiddleware';
+import { RootState, AppDispatch } from './types';
 
+// Начальное состояние для constructor
 const initialConstructorState = {
   bun: null,
   ingredients: [],
@@ -15,6 +18,7 @@ const initialConstructorState = {
   error: null
 };
 
+// Создаём store
 const store = configureStore({
   reducer: rootReducer,
   preloadedState: {
@@ -30,12 +34,10 @@ const store = configureStore({
           'constructor/addIngredient'
         ]
       }
-    })
+    }).prepend(tokenMiddleware)
 });
 
-export type RootState = ReturnType<typeof rootReducer>;
-export type AppDispatch = typeof store.dispatch;
-
+// Типизированные хуки
 export const useDispatch: () => AppDispatch = () => dispatchHook();
 export const useSelector: TypedUseSelectorHook<RootState> = selectorHook;
 
