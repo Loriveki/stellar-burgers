@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, ChangeEvent } from 'react';
 import {
   Input as BaseInput,
   Button,
@@ -19,7 +19,6 @@ interface CustomInputProps
 
 const Input = BaseInput as React.FC<CustomInputProps>;
 
-// Компонент страницы регистрации
 export const RegisterUI: FC<RegisterUIProps> = ({
   errorText,
   email,
@@ -42,31 +41,34 @@ export const RegisterUI: FC<RegisterUIProps> = ({
           <Input
             type='text'
             placeholder='Имя'
-            onChange={(e) => setUserName(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setUserName(e)}
             value={userName}
-            name='name'
+            name='userName'
             error={false}
             errorText=''
             size='default'
+            autoComplete='given-name'
           />
         </div>
         <div className='pb-6'>
           <Input
             type='email'
             placeholder='E-mail'
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e)}
             value={email}
-            name={'email'}
+            name='email'
             error={false}
             errorText=''
-            size={'default'}
+            size='default'
+            autoComplete='email'
           />
         </div>
         <div className='pb-6'>
           <PasswordInput
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e)}
             value={password}
             name='password'
+            autoComplete='new-password'
           />
         </div>
         <div className={`pb-6 ${styles.button}`}>

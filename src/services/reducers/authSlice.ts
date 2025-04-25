@@ -5,7 +5,9 @@ import {
   logoutApi,
   getUserApi,
   updateUserApi,
-  refreshToken // Импортируем готовую функцию refreshToken
+  refreshToken,
+  forgotPasswordApi,
+  resetPasswordApi
 } from '../../utils/burger-api';
 import { TUser } from '../../utils/types';
 import { setCookie, getCookie, deleteCookie } from '../../utils/cookie';
@@ -24,12 +26,37 @@ const initialState: IAuthState = {
   user: null,
   accessToken: getCookie('accessToken') || null,
   refreshToken: localStorage.getItem('refreshToken') || null,
-  isAuthenticated: false,
+  isAuthenticated: !!getCookie('accessToken'),
   loading: false,
   error: null
 };
 
-// Запрос на регистрацию нового пользователя
+// Thunk для forgotPassword
+export const forgotPasswordThunk = createAsyncThunk<
+  void,
+  { email: string },
+  { rejectValue: string }
+>('auth/forgotPassword', async (data, { rejectWithValue }) => {
+  try {
+    await forgotPasswordApi(data);
+  } catch (err) {
+    return rejectWithValue('Ошибка отправки запроса на восстановление пароля');
+  }
+});
+
+// Thunk для resetPassword
+export const resetPasswordThunk = createAsyncThunk<
+  void,
+  { password: string; token: string },
+  { rejectValue: string }
+>('auth/resetPassword', async (data, { rejectWithValue }) => {
+  try {
+    await resetPasswordApi(data);
+  } catch (err) {
+    return rejectWithValue('Ошибка сброса пароля');
+  }
+});
+
 export const registerUserThunk = createAsyncThunk<
   TUser,
   { email: string; name: string; password: string },
@@ -51,13 +78,11 @@ export const loginUserThunk = createAsyncThunk<
 >('auth/loginUser', async (loginData, { rejectWithValue }) => {
   try {
     const response = await loginUserApi(loginData);
-
     const accessToken = response.accessToken;
     const refreshToken = response.refreshToken;
     if (accessToken) {
       setCookie('accessToken', accessToken);
     }
-
     localStorage.setItem('refreshToken', refreshToken);
     return response.user;
   } catch (err) {
@@ -72,7 +97,7 @@ export const refreshTokenThunk = createAsyncThunk<
   { rejectValue: string }
 >('auth/refreshToken', async (_, { rejectWithValue }) => {
   try {
-    const refreshData = await refreshToken(); // Используем готовую функцию из burger-api
+    const refreshData = await refreshToken();
     return {
       accessToken: refreshData.accessToken,
       refreshToken: refreshData.refreshToken
@@ -129,7 +154,31 @@ const authSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // Регистрация пользователя
+
+      .addCase(forgotPasswordThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(forgotPasswordThunk.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(forgotPasswordThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
+      .addCase(resetPasswordThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(resetPasswordThunk.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(resetPasswordThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
       .addCase(registerUserThunk.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -173,8 +222,6 @@ const authSlice = createSlice({
       .addCase(refreshTokenThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-        state.isAuthenticated = false;
-        state.user = null;
         state.accessToken = null;
         state.refreshToken = null;
         deleteCookie('accessToken');
@@ -205,6 +252,8 @@ const authSlice = createSlice({
       .addCase(getUserThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+        state.isAuthenticated = false;
+        state.user = null;
       })
 
       // Обновление данных пользователя

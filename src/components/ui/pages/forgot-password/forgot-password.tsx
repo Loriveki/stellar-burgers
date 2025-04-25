@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, ChangeEvent } from 'react';
 import {
   Input as BaseInput,
   Button
@@ -19,7 +19,6 @@ interface CustomInputProps
 
 const Input = BaseInput as React.FC<CustomInputProps>;
 
-// Компонент страницы восстановления пароля
 export const ForgotPasswordUI: FC<PageUIProps> = ({
   errorText,
   email,
@@ -38,21 +37,20 @@ export const ForgotPasswordUI: FC<PageUIProps> = ({
           <Input
             type='email'
             placeholder='Укажите e-mail'
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e)}
             value={email}
             name='email'
             error={false}
             errorText=''
             size='default'
+            autoComplete='email'
           />
         </div>
         <div className={`pb-6 ${styles.button}`}>
-          {/* Кнопка отправки формы */}
           <Button type='primary' size='medium' htmlType='submit'>
             Восстановить
           </Button>
         </div>
-        {/* Вывод ошибки, если есть */}
         {errorText && (
           <p className={`${styles.error} text text_type_main-default pb-6`}>
             {errorText}
@@ -60,9 +58,8 @@ export const ForgotPasswordUI: FC<PageUIProps> = ({
         )}
       </form>
       <div className={`${styles.question} text text_type_main-default pb-6`}>
-        {/* Ссылка на страницу входа */}
         Вспомнили пароль?
-        <Link to={'/login'} className={`pl-2 ${styles.link}`}>
+        <Link to='/login' className={`pl-2 ${styles.link}`}>
           Войти
         </Link>
       </div>

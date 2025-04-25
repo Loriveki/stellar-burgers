@@ -5,7 +5,8 @@ import {
   selectFeed,
   selectLoadingFeed,
   connectFeedWs,
-  disconnectFeedWs
+  disconnectFeedWs,
+  selectWsIsConnecting
 } from '../../services/reducers/feedSlice';
 import { useSelector, useDispatch } from '../../services/store';
 import { selectNewOrderIds } from '../../services/reducers/orderSlice';
@@ -15,7 +16,7 @@ export const Feed: FC = () => {
   const feed = useSelector(selectFeed);
   const isLoadingFeed = useSelector(selectLoadingFeed);
   const newOrderIds = useSelector(selectNewOrderIds);
-
+  const isConnecting = useSelector(selectWsIsConnecting);
   const FEED_WS_URL = 'wss://norma.nomoreparties.space/orders/all';
 
   // Подключение WebSocket для общей ленты заказов
@@ -27,6 +28,9 @@ export const Feed: FC = () => {
   }, [dispatch]);
 
   const handleGetFeeds = () => {
+    if (isConnecting) {
+      return;
+    }
     dispatch(disconnectFeedWs());
     dispatch(connectFeedWs(FEED_WS_URL));
   };
@@ -40,6 +44,7 @@ export const Feed: FC = () => {
       orders={feed.orders}
       handleGetFeeds={handleGetFeeds}
       newOrderIds={newOrderIds}
+      isRefreshing={isConnecting}
     />
   );
 };

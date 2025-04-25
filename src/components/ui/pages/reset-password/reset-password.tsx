@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, ChangeEvent } from 'react';
 import {
   Input as BaseInput,
   Button,
@@ -19,7 +19,6 @@ interface CustomInputProps
 
 const Input = BaseInput as React.FC<CustomInputProps>;
 
-//Этот компонент реализует страницу восстановления пароля
 export const ResetPasswordUI: FC<ResetPasswordUIProps> = ({
   errorText,
   password,
@@ -38,21 +37,23 @@ export const ResetPasswordUI: FC<ResetPasswordUIProps> = ({
       >
         <div className='pb-6'>
           <PasswordInput
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e)}
             value={password}
             name='password'
+            autoComplete='new-password'
           />
         </div>
         <div className='pb-6'>
           <Input
             type='text'
             placeholder='Введите код из письма'
-            onChange={(e) => setToken(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setToken(e)}
             value={token}
             name='token'
             error={false}
             errorText=''
             size='default'
+            autoComplete='one-time-code'
           />
         </div>
         <div className={`pb-6 ${styles.button}`}>

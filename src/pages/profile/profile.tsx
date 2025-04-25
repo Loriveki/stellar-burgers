@@ -1,14 +1,14 @@
-import { FC, SyntheticEvent, useEffect, useState, useRef } from 'react';
+import { FC, useEffect, FormEvent } from 'react';
 import { Preloader } from '@ui';
 import { useSelector, useDispatch } from '../../services/store';
 import {
   selectUser,
-  getUserThunk,
   updateUserThunk,
   selectAuthError,
   selectAuthLoading
 } from '../../services/reducers/authSlice';
 import { ProfileUI } from '@ui-pages';
+import { useForm } from '../../hooks/useForm';
 
 export const Profile: FC = () => {
   const user = useSelector(selectUser);
@@ -17,43 +17,35 @@ export const Profile: FC = () => {
   const dispatch = useDispatch();
   const PASSWORD_PLACEHOLDER = '********';
 
-  const [formValue, setFormValue] = useState({
-    name: '',
-    email: '',
+  const [formValue, handleChange, setForm] = useForm({
+    name: user?.name || '',
+    email: user?.email || '',
     password: PASSWORD_PLACEHOLDER
   });
-  const [initialPassword, setInitialPassword] = useState('');
-  const [isPasswordChanged, setIsPasswordChanged] = useState(false);
 
-  useEffect(() => {
-    if (!user) {
-      dispatch(getUserThunk());
-    }
-  }, [dispatch, user]);
-
+  // Инициализация формы при монтировании или изменении user
   useEffect(() => {
     if (user) {
-      setFormValue((prevState) => ({
-        ...prevState,
+      setForm({
         name: user.name || '',
         email: user.email || '',
-        password: prevState.password || PASSWORD_PLACEHOLDER
-      }));
+        password: PASSWORD_PLACEHOLDER
+      });
     }
-  }, [user]);
+  }, [user, setForm]);
+
+  const isPasswordChanged = formValue.password !== PASSWORD_PLACEHOLDER;
 
   const isFormChanged =
     (user && formValue.name !== user.name) ||
     (user && formValue.email !== user.email) ||
-    (isPasswordChanged && formValue.password !== initialPassword);
+    (isPasswordChanged && formValue.password !== '');
 
-  const handleSubmit = (e: SyntheticEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     const passwordToSend =
-      isPasswordChanged && formValue.password !== PASSWORD_PLACEHOLDER
-        ? formValue.password
-        : '';
-    dispatch(
+      isPasswordChanged && formValue.password ? formValue.password : '';
+    await dispatch(
       updateUserThunk({
         name: formValue.name,
         email: formValue.email,
@@ -62,29 +54,13 @@ export const Profile: FC = () => {
     );
   };
 
-  const handleCancel = (e: SyntheticEvent) => {
-    e.preventDefault();
-    setFormValue({
-      name: user?.name || '',
-      email: user?.email || '',
-      password: initialPassword || PASSWORD_PLACEHOLDER
-    });
-    setIsPasswordChanged(false);
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormValue((prevState) => ({
-      ...prevState,
-      [name]: value
-    }));
-    if (name === 'password') {
-      if (!initialPassword) {
-        setInitialPassword(value);
-      }
-      setIsPasswordChanged(
-        value !== PASSWORD_PLACEHOLDER && value !== initialPassword
-      );
+  const handleCancel = (): void => {
+    if (user) {
+      setForm({
+        name: user.name || '',
+        email: user.email || '',
+        password: PASSWORD_PLACEHOLDER
+      });
     }
   };
 
@@ -99,7 +75,7 @@ export const Profile: FC = () => {
       updateUserError={error}
       handleCancel={handleCancel}
       handleSubmit={handleSubmit}
-      handleInputChange={handleInputChange}
+      handleInputChange={handleChange}
     />
   );
 };

@@ -19,12 +19,11 @@ export const ProtectedRoute = ({
     return <Preloader />;
   }
 
-  // Защита от авторизованных пользователей
   if (onlyUnAuth && isAuthenticated) {
-    return <Navigate to='/' replace />;
+    const from = location.state?.from || '/';
+    return <Navigate to={from} replace />;
   }
 
-  // Защита от неавторизованных пользователей
   if (!onlyUnAuth && !isAuthenticated) {
     return <Navigate to='/login' state={{ from: location }} replace />;
   }

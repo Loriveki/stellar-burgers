@@ -10,15 +10,15 @@ interface ExtendedFeedUIProps extends FeedUIProps {
 }
 
 export const FeedUI: FC<ExtendedFeedUIProps> = memo(
-  ({ orders, handleGetFeeds, newOrderIds }) => (
+  ({ orders, handleGetFeeds, newOrderIds, isRefreshing = false }) => (
     <main className={styles.containerMain}>
       <div className={clsx(styles.titleBox, 'mt-10 mb-5')}>
         <h1 className={clsx(styles.title, 'text text_type_main-large')}>
           Лента заказов
         </h1>
         <RefreshButton
-          text='Обновить'
-          onClick={handleGetFeeds}
+          text={isRefreshing ? 'Обновляется' : 'Обновить'}
+          onClick={isRefreshing ? () => {} : handleGetFeeds}
           extraClass='ml-30'
         />
       </div>

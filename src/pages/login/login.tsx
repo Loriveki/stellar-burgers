@@ -1,39 +1,32 @@
-import { FC, SyntheticEvent, useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { FC, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { loginUserThunk, selectUser } from '../../services/reducers/authSlice';
+import { loginUserThunk } from '../../services/reducers/authSlice';
 import { Preloader } from '@ui';
-import {
-  selectIsAuthenticated,
-  selectAuthLoading,
-  selectAuthError
-} from '../../services/reducers/authSlice';
+import { selectAuthLoading } from '../../services/reducers/authSlice';
 import { LoginUI } from '@ui-pages';
-import { useSelector } from '../../services/store';
-import { AppDispatch } from '../../services/types';
+import { useSelector, useDispatch } from '../../services/store';
+import { useForm } from '../../hooks/useForm';
 
 export const Login: FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [form, handleChange] = useForm({ email: '', password: '' });
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const dispatch = useDispatch<AppDispatch>();
-  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const dispatch = useDispatch();
   const isLoading = useSelector(selectAuthLoading);
-  const error = useSelector(selectAuthError);
-  const user = useSelector(selectUser);
 
-  useEffect(() => {
-    if (isAuthenticated && user) {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError(null);
+    try {
+      await dispatch(
+        loginUserThunk({ email: form.email, password: form.password })
+      ).unwrap();
       const from = location.state?.from || '/';
       navigate(from, { replace: true });
+    } catch (err) {
+      setError((err as Error).message || 'Произошла ошибка при входе');
     }
-  }, [isAuthenticated, user, navigate, location.state]);
-
-  // Обработчик отправки формы
-  const handleSubmit = async (e: SyntheticEvent) => {
-    e.preventDefault();
-    await dispatch(loginUserThunk({ email, password })).unwrap();
   };
 
   if (isLoading) {
@@ -43,10 +36,10 @@ export const Login: FC = () => {
   return (
     <LoginUI
       errorText={error || ''}
-      email={email}
-      setEmail={setEmail}
-      password={password}
-      setPassword={setPassword}
+      email={form.email}
+      setEmail={(e) => handleChange(e)}
+      password={form.password}
+      setPassword={(e) => handleChange(e)}
       handleSubmit={handleSubmit}
     />
   );

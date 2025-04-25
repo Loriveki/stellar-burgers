@@ -1,11 +1,16 @@
 import { FC, memo } from 'react';
 import styles from './feed-info.module.css';
 import { FeedInfoUIProps, HalfColumnProps, TColumnProps } from './type';
+import { Preloader } from '@ui';
 
 // Компонент для отображения информации о заказах
 export const FeedInfoUI: FC<FeedInfoUIProps> = memo(
-  ({ feed, readyOrders, pendingOrders }) => {
-    const { total, totalToday } = feed; // Деструктуризация данных о заказах
+  ({ feed, readyOrders, pendingOrders, isLoading }) => {
+    if (isLoading || !feed) {
+      return <Preloader />;
+    }
+
+    const { total, totalToday } = feed;
 
     return (
       <section>

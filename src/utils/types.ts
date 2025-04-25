@@ -19,6 +19,11 @@ export interface TConstructorIngredient extends TIngredient {
   uniqueId: string;
 }
 
+export type TConstructorItems = {
+  bun: TIngredient | null;
+  ingredients: TConstructorIngredient[];
+};
+
 /**
  * Тип данных заказа.
  */

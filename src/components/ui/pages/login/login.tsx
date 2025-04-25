@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, ChangeEvent } from 'react';
 import {
   Input as BaseInput,
   Button,
@@ -19,7 +19,6 @@ interface CustomInputProps
 
 const Input = BaseInput as React.FC<CustomInputProps>;
 
-// Компонент страницы авторизации
 export const LoginUI: FC<LoginUIProps> = ({
   email,
   setEmail,
@@ -40,19 +39,21 @@ export const LoginUI: FC<LoginUIProps> = ({
           <Input
             type='email'
             placeholder='E-mail'
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e)}
             value={email}
             name='email'
             error={false}
             errorText=''
             size='default'
+            autoComplete='email'
           />
         </div>
         <div className='pb-6'>
           <PasswordInput
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e)}
             value={password}
             name='password'
+            autoComplete='current-password'
           />
         </div>
         <div className={`pb-6 ${styles.button}`}>
@@ -74,7 +75,7 @@ export const LoginUI: FC<LoginUIProps> = ({
       </div>
       <div className={`${styles.question} text text_type_main-default pb-6`}>
         Забыли пароль?
-        <Link to={'/forgot-password'} className={`pl-2 ${styles.link}`}>
+        <Link to='/forgot-password' className={`pl-2 ${styles.link}`}>
           Восстановить пароль
         </Link>
       </div>

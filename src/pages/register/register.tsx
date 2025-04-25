@@ -1,43 +1,46 @@
-import { FC, SyntheticEvent, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { FC, useState, FormEvent } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   registerUserThunk,
   loginUserThunk
 } from '../../services/reducers/authSlice';
 import { Preloader } from '@ui';
-import {
-  selectIsAuthenticated,
-  selectAuthLoading,
-  selectAuthError
-} from '../../services/reducers/authSlice';
+import { selectAuthLoading } from '../../services/reducers/authSlice';
 import { RegisterUI } from '@ui-pages';
-import { useSelector } from '../../services/store';
-import { AppDispatch } from '../../services/types';
+import { useSelector, useDispatch } from '../../services/store';
+import { useForm } from '../../hooks/useForm';
 
 export const Register: FC = () => {
-  const [userName, setUserName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [form, handleChange] = useForm({
+    userName: '',
+    email: '',
+    password: ''
+  });
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const dispatch = useDispatch<AppDispatch>();
-  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const location = useLocation();
+  const dispatch = useDispatch();
   const isLoading = useSelector(selectAuthLoading);
-  const error = useSelector(selectAuthError);
 
-  // Если пользователь уже авторизован, перенаправить его на главную
-  if (isAuthenticated) {
-    navigate('/');
-  }
-
-  // Обработчик отправки формы
-  const handleSubmit = async (e: SyntheticEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await dispatch(
-      registerUserThunk({ email, name: userName, password })
-    ).unwrap();
-    await dispatch(loginUserThunk({ email, password })).unwrap();
-    navigate('/');
+    setError(null);
+    try {
+      await dispatch(
+        registerUserThunk({
+          email: form.email,
+          name: form.userName,
+          password: form.password
+        })
+      ).unwrap();
+      await dispatch(
+        loginUserThunk({ email: form.email, password: form.password })
+      ).unwrap();
+      const from = location.state?.from || '/';
+      navigate(from, { replace: true });
+    } catch (err) {
+      setError((err as Error).message || 'Произошла ошибка при регистрации');
+    }
   };
 
   if (isLoading) {
@@ -47,12 +50,12 @@ export const Register: FC = () => {
   return (
     <RegisterUI
       errorText={error || ''}
-      email={email}
-      userName={userName}
-      password={password}
-      setEmail={setEmail}
-      setPassword={setPassword}
-      setUserName={setUserName}
+      email={form.email}
+      userName={form.userName}
+      password={form.password}
+      setEmail={(e) => handleChange(e)}
+      setPassword={(e) => handleChange(e)}
+      setUserName={(e) => handleChange(e)}
       handleSubmit={handleSubmit}
     />
   );

@@ -2,7 +2,11 @@ import { FC } from 'react';
 import { TOrder } from '@utils-types';
 import { FeedInfoUI } from '../ui/feed-info';
 import { useSelector } from '../../services/store';
-import { selectFeed } from '../../services/reducers/feedSlice';
+import {
+  selectFeed,
+  selectLoadingFeed,
+  selectFeedError
+} from '../../services/reducers/feedSlice';
 import { RootState } from '../../services/types';
 
 // Функция получает список заказов и статус,
@@ -20,6 +24,8 @@ const getOrders = (
 
 export const FeedInfo: FC = () => {
   const feed = useSelector(selectFeed);
+  const isLoading = useSelector(selectLoadingFeed);
+  const error = useSelector(selectFeedError);
   const statusUpdates = useSelector(
     (state: RootState) => state.order.statusUpdates
   ) as { [orderId: string]: string };
@@ -33,6 +39,8 @@ export const FeedInfo: FC = () => {
       readyOrders={readyOrders}
       pendingOrders={pendingOrders}
       feed={feed}
+      isLoading={isLoading}
+      error={error}
     />
   );
 };

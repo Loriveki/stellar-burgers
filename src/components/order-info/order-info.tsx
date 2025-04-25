@@ -31,10 +31,6 @@ export const OrderInfo: FC<OrderInfoProps> = ({ isModal = false }) => {
 
   const isLoading = useSelector(selectLoadingIngredients);
 
-  if (isLoading) {
-    return <Preloader />;
-  }
-
   useEffect(() => {
     if (number) {
       const orderNumber = Number(number);
@@ -84,7 +80,7 @@ export const OrderInfo: FC<OrderInfoProps> = ({ isModal = false }) => {
     };
   }, [orderFromStore, ingredients]);
 
-  if (!number || !orderInfo) {
+  if (isLoading || !number || !orderInfo) {
     return <Preloader />;
   }
 
