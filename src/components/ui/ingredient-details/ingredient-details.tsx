@@ -1,19 +1,21 @@
-import React, { FC, memo } from 'react';
+import { FC, memo } from 'react';
 import styles from './ingredient-details.module.css';
 import { IngredientDetailsUIProps } from './type';
 
+// Компонент для отображения деталей ингредиента
 export const IngredientDetailsUI: FC<IngredientDetailsUIProps> = memo(
-  ({ ingredientData }) => {
+  ({ ingredientData, withTitle = true }) => {
     const { name, image_large, calories, proteins, fat, carbohydrates } =
       ingredientData;
 
     return (
       <div className={styles.content}>
-        <img
-          className={styles.img}
-          alt='изображение ингредиента.'
-          src={image_large}
-        />
+        {withTitle && (
+          <h2 className='text text_type_main-large text-center'>
+            Детали ингредиента
+          </h2>
+        )}
+        <img className={styles.img} alt={name} src={image_large} />
         <h3 className='text text_type_main-medium mt-2 mb-4'>{name}</h3>
         <ul className={`${styles.nutritional_values} text_type_main-default`}>
           <li className={styles.nutritional_value}>

@@ -1,11 +1,15 @@
-import React, { FC, memo } from 'react';
-
+import { FC, memo } from 'react';
 import styles from './feed-info.module.css';
-
 import { FeedInfoUIProps, HalfColumnProps, TColumnProps } from './type';
+import { Preloader } from '@ui';
 
+// Компонент для отображения информации о заказах
 export const FeedInfoUI: FC<FeedInfoUIProps> = memo(
-  ({ feed, readyOrders, pendingOrders }) => {
+  ({ feed, readyOrders, pendingOrders, isLoading }) => {
+    if (isLoading || !feed) {
+      return <Preloader />;
+    }
+
     const { total, totalToday } = feed;
 
     return (
@@ -25,6 +29,7 @@ export const FeedInfoUI: FC<FeedInfoUIProps> = memo(
   }
 );
 
+// Компонент для отображения списка заказов в двух колонках (Готовы / В работе)
 const HalfColumn: FC<HalfColumnProps> = ({ orders, title, textColor }) => (
   <div className={`pr-6 ${styles.column}`}>
     <h3 className={`text text_type_main-medium ${styles.title}`}>{title}:</h3>
@@ -42,6 +47,7 @@ const HalfColumn: FC<HalfColumnProps> = ({ orders, title, textColor }) => (
   </div>
 );
 
+// Компонент для отображения общего количества заказов
 const Column: FC<TColumnProps> = ({ title, content }) => (
   <>
     <h3 className={`pt-15 text text_type_main-medium ${styles.title}`}>

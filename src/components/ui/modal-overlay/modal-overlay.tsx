@@ -1,5 +1,10 @@
 import styles from './modal-overlay.module.css';
 
-export const ModalOverlayUI = ({ onClick }: { onClick: () => void }) => (
+// затемненный фон для модального окна, закрывает при клике
+interface ModalOverlayUIProps {
+  onClick: () => void;
+}
+
+export const ModalOverlayUI = ({ onClick }: ModalOverlayUIProps) => (
   <div className={styles.overlay} onClick={onClick} />
 );

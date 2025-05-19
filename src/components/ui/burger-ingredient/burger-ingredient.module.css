@@ -28,3 +28,8 @@
   width: 260px;
   justify-content: center;
 }
+
+.draggable {
+  transition: transform 0.2s ease;
+  cursor: grab;
+}

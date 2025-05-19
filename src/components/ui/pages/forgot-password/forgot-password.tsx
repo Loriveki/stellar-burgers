@@ -1,9 +1,23 @@
-import { FC } from 'react';
-
-import { Input, Button } from '@zlden/react-developer-burger-ui-components';
+import { FC, ChangeEvent } from 'react';
+import {
+  Input as BaseInput,
+  Button
+} from '@zlden/react-developer-burger-ui-components';
 import styles from '../common.module.css';
 import { Link } from 'react-router-dom';
 import { PageUIProps } from '../common-type';
+import clsx from 'clsx';
+
+interface CustomInputProps
+  extends Omit<
+    React.ComponentProps<typeof BaseInput>,
+    'onPointerEnterCapture' | 'onPointerLeaveCapture'
+  > {
+  onPointerEnterCapture?: (event: React.PointerEvent<HTMLInputElement>) => void;
+  onPointerLeaveCapture?: (event: React.PointerEvent<HTMLInputElement>) => void;
+}
+
+const Input = BaseInput as React.FC<CustomInputProps>;
 
 export const ForgotPasswordUI: FC<PageUIProps> = ({
   errorText,
@@ -12,7 +26,7 @@ export const ForgotPasswordUI: FC<PageUIProps> = ({
   handleSubmit
 }) => (
   <main className={styles.container}>
-    <div className={`pt-6 ${styles.wrapCenter}`}>
+    <div className={clsx('pt-6', styles.wrapCenter)}>
       <h3 className='pb-6 text text_type_main-medium'>Восстановление пароля</h3>
       <form
         className={`pb-15 ${styles.form}`}
@@ -23,12 +37,13 @@ export const ForgotPasswordUI: FC<PageUIProps> = ({
           <Input
             type='email'
             placeholder='Укажите e-mail'
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e)}
             value={email}
             name='email'
             error={false}
             errorText=''
             size='default'
+            autoComplete='email'
           />
         </div>
         <div className={`pb-6 ${styles.button}`}>
@@ -44,7 +59,7 @@ export const ForgotPasswordUI: FC<PageUIProps> = ({
       </form>
       <div className={`${styles.question} text text_type_main-default pb-6`}>
         Вспомнили пароль?
-        <Link to={'/login'} className={`pl-2 ${styles.link}`}>
+        <Link to='/login' className={`pl-2 ${styles.link}`}>
           Войти
         </Link>
       </div>

@@ -1,22 +1,25 @@
-import React, { FC, memo } from 'react';
+import { FC, memo } from 'react';
 import { Link } from 'react-router-dom';
 import {
   CurrencyIcon,
   FormattedDate
 } from '@zlden/react-developer-burger-ui-components';
-
 import styles from './order-card.module.css';
-
 import { OrderCardUIProps } from './type';
 import { OrderStatus } from '@components';
 
-export const OrderCardUI: FC<OrderCardUIProps> = memo(
-  ({ orderInfo, maxIngredients, locationState }) => (
+interface ExtendedOrderCardUIProps extends OrderCardUIProps {
+  isNew?: boolean;
+}
+
+// отображает карточку заказа с информацией о его статусе и ингредиентах
+export const OrderCardUI: FC<ExtendedOrderCardUIProps> = memo(
+  ({ orderInfo, maxIngredients, locationState, isNew = false }) => (
     <Link
       to={orderInfo.number.toString()}
       relative='path'
       state={locationState}
-      className={`p-6 mb-4 mr-2 ${styles.order}`}
+      className={`p-6 mb-4 mr-2 ${styles.order} ${isNew ? styles.newOrder : ''}`}
     >
       <div className={styles.order_info}>
         <span className={`text text_type_digits-default ${styles.number}`}>
@@ -36,7 +39,8 @@ export const OrderCardUI: FC<OrderCardUIProps> = memo(
         <ul className={styles.ingredients}>
           {orderInfo.ingredientsToShow.map((ingredient, index) => {
             let zIndex = maxIngredients - index;
-            let right = 20 * index;
+            const ingredientOffset = 20;
+            let right = ingredientOffset * index;
             return (
               <li
                 className={styles.img_wrap}

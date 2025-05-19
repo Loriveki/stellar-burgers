@@ -1,25 +1,19 @@
-import { FC, SyntheticEvent, useEffect, useState } from 'react';
+import { FC, useState, useEffect, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-import { resetPasswordApi } from '@api';
+import { resetPasswordThunk } from '../../services/reducers/authSlice';
 import { ResetPasswordUI } from '@ui-pages';
+import { Preloader } from '@ui';
+import { useSelector } from '../../services/store';
+import { selectAuthLoading } from '../../services/reducers/authSlice';
+import { useDispatch } from '../../services/store';
+import { useForm } from '../../hooks/useForm';
 
 export const ResetPassword: FC = () => {
+  const [form, handleChange] = useForm({ password: '', token: '' });
+  const [error, setError] = useState<string | null>(null);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [password, setPassword] = useState('');
-  const [token, setToken] = useState('');
-  const [error, setError] = useState<Error | null>(null);
-
-  const handleSubmit = (e: SyntheticEvent) => {
-    e.preventDefault();
-    setError(null);
-    resetPasswordApi({ password, token })
-      .then(() => {
-        localStorage.removeItem('resetPassword');
-        navigate('/login');
-      })
-      .catch((err) => setError(err));
-  };
+  const isLoading = useSelector(selectAuthLoading);
 
   useEffect(() => {
     if (!localStorage.getItem('resetPassword')) {
@@ -27,13 +21,31 @@ export const ResetPassword: FC = () => {
     }
   }, [navigate]);
 
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError(null);
+    try {
+      await dispatch(
+        resetPasswordThunk({ password: form.password, token: form.token })
+      ).unwrap();
+      localStorage.removeItem('resetPassword');
+      navigate('/login');
+    } catch (err) {
+      setError((err as Error).message || 'Произошла ошибка при сбросе пароля');
+    }
+  };
+
+  if (isLoading) {
+    return <Preloader />;
+  }
+
   return (
     <ResetPasswordUI
-      errorText={error?.message}
-      password={password}
-      token={token}
-      setPassword={setPassword}
-      setToken={setToken}
+      errorText={error || ''}
+      password={form.password}
+      token={form.token}
+      setPassword={(e) => handleChange(e)}
+      setToken={(e) => handleChange(e)}
       handleSubmit={handleSubmit}
     />
   );

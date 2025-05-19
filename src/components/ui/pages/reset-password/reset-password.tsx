@@ -1,12 +1,23 @@
-import { FC } from 'react';
+import { FC, ChangeEvent } from 'react';
 import {
-  Input,
+  Input as BaseInput,
   Button,
   PasswordInput
 } from '@zlden/react-developer-burger-ui-components';
 import styles from '../common.module.css';
 import { Link } from 'react-router-dom';
 import { ResetPasswordUIProps } from './type';
+
+interface CustomInputProps
+  extends Omit<
+    React.ComponentProps<typeof BaseInput>,
+    'onPointerEnterCapture' | 'onPointerLeaveCapture'
+  > {
+  onPointerEnterCapture?: (event: React.PointerEvent<HTMLInputElement>) => void;
+  onPointerLeaveCapture?: (event: React.PointerEvent<HTMLInputElement>) => void;
+}
+
+const Input = BaseInput as React.FC<CustomInputProps>;
 
 export const ResetPasswordUI: FC<ResetPasswordUIProps> = ({
   errorText,
@@ -26,21 +37,23 @@ export const ResetPasswordUI: FC<ResetPasswordUIProps> = ({
       >
         <div className='pb-6'>
           <PasswordInput
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e)}
             value={password}
             name='password'
+            autoComplete='new-password'
           />
         </div>
         <div className='pb-6'>
           <Input
             type='text'
             placeholder='Введите код из письма'
-            onChange={(e) => setToken(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setToken(e)}
             value={token}
             name='token'
             error={false}
             errorText=''
             size='default'
+            autoComplete='one-time-code'
           />
         </div>
         <div className={`pb-6 ${styles.button}`}>
